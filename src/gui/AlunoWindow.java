@@ -71,19 +71,24 @@ public class AlunoWindow extends JFrame {
 	private JScrollPane scrollPane;
 
 	private MaskFormatter mascaraData;
+	private SimpleDateFormat sdf;
 
 	private CursoService cursoService;
 	private AlunoService alunoService;
-	private final ButtonGroup buttonGroup = new ButtonGroup();
+	private final ButtonGroup bgSexo;
 
 	public AlunoWindow() {
 
 		this.criarMascaraData();
-		this.initComponents();
+		this.definirFormatoData();
+		
 
+		this.bgSexo = new ButtonGroup();
 		this.cursoService = new CursoService();
 		this.alunoService = new AlunoService();
 
+		this.initComponents();
+		
 		this.buscarCursos();
 		this.buscarAlunos();
 		this.limparComponentes();
@@ -104,8 +109,6 @@ public class AlunoWindow extends JFrame {
 
 		try {
 			
-			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
-			
 			DefaultTableModel modelo = (DefaultTableModel) tblAlunos.getModel();
 			modelo.fireTableDataChanged();
 			modelo.setRowCount(0);
@@ -119,15 +122,15 @@ public class AlunoWindow extends JFrame {
 					aluno.getNome(), 
 					aluno.getSexo(),
 					aluno.getCurso().getNome(), 
-					formato.format(aluno.getDataIngresso()), // formatando a data no modelo dd/MM/yyyy
+					this.sdf.format(aluno.getDataIngresso()), // formatando a data no modelo dd/MM/yyyy
 					aluno.getPeriodo(), 
 					aluno.getCoeficiente() 
 				});
 			}
 		
-		} catch (SQLException | IOException e) {
+		} catch (Exception e) {
 
-			JOptionPane.showMessageDialog(null, "Erro ao carregar os dados dos alunos.", "Busca de Alunos", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Erro ao buscar alunos da base de dados.", "Erro Buscar Alunos", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -142,7 +145,7 @@ public class AlunoWindow extends JFrame {
 				this.cbCurso.addItem(curso);
 			}
 	
-		} catch (SQLException | IOException e) {
+		} catch (Exception e) {
 
 			JOptionPane.showMessageDialog(null, "Erro ao buscar os dados dos cursos.", "Busca de Curso", JOptionPane.ERROR_MESSAGE);
 		}
@@ -159,12 +162,16 @@ public class AlunoWindow extends JFrame {
 			System.out.println("ERRO: " + e.getMessage());
 		}
 	}
+	
+	private void definirFormatoData() {
+
+		sdf = new SimpleDateFormat("dd/MM/yyyy");
+	}
 
 	private void cadastrarAluno() {
 
 		try {
 
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			Aluno aluno = new Aluno();
 
 			aluno.setRegistroAcademico(Integer.parseInt(this.txtRegistroAcademico.getText()));
@@ -172,16 +179,19 @@ public class AlunoWindow extends JFrame {
 			aluno.setSexo(verificarSelecaoRadioButtonSexo());
 			aluno.setCurso((Curso) this.cbCurso.getSelectedItem());
 			aluno.setDataIngresso(new java.sql.Date(sdf.parse(this.txtDataIngresso.getText()).getTime()));
-
-			aluno.setPeriodo(Integer.parseInt(this.spPeriodo.getValue().toString()));
+			aluno.setPeriodo((Integer) this.spPeriodo.getValue());
 			aluno.setCoeficiente(Double.parseDouble(this.txtCoeficiente.getText()));
 
 			this.alunoService.cadastrar(aluno);
-			this.buscarAlunos();
-
+			
 		} catch (SQLException | IOException | ParseException | NumberFormatException e) {
 
-			JOptionPane.showMessageDialog(null, "Erro ao cadastrar um novo aluno.", "Cadastro", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Erro ao cadastrar um novo aluno.", "Cadastro de Aluno", JOptionPane.ERROR_MESSAGE);
+		
+		} finally {
+			
+			this.buscarAlunos();
+			this.limparComponentes();
 		}
 	}
 
@@ -211,10 +221,11 @@ public class AlunoWindow extends JFrame {
 
 	public void initComponents() {
 
-		setTitle("Aluno");
+		setTitle("Exemplo App Completo");
+		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
-		setBounds(100, 100, 650, 709);
+		setBounds(100, 100, 631, 709);
 
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -250,12 +261,12 @@ public class AlunoWindow extends JFrame {
 
 		lblRegistroAcademico = new JLabel("Registro Acad\u00EAmico");
 		lblRegistroAcademico.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblRegistroAcademico.setBounds(25, 21, 131, 23);
+		lblRegistroAcademico.setBounds(25, 21, 151, 23);
 		contentPane.add(lblRegistroAcademico);
 
 		txtRegistroAcademico = new JTextField();
 		txtRegistroAcademico.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		txtRegistroAcademico.setBounds(166, 22, 143, 22);
+		txtRegistroAcademico.setBounds(175, 22, 143, 22);
 		contentPane.add(txtRegistroAcademico);
 		txtRegistroAcademico.setColumns(10);
 
@@ -277,21 +288,21 @@ public class AlunoWindow extends JFrame {
 		painelSexo.setLayout(null);
 
 		rbMasculino = new JRadioButton("Masculino");
-		buttonGroup.add(rbMasculino);
+		bgSexo.add(rbMasculino);
 		rbMasculino.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		rbMasculino.setBounds(18, 29, 109, 31);
+		rbMasculino.setBounds(18, 29, 168, 31);
 		painelSexo.add(rbMasculino);
 
 		rbFeminino = new JRadioButton("Feminino");
-		buttonGroup.add(rbFeminino);
+		bgSexo.add(rbFeminino);
 		rbFeminino.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		rbFeminino.setBounds(18, 63, 109, 31);
+		rbFeminino.setBounds(18, 63, 168, 31);
 		painelSexo.add(rbFeminino);
 
 		rbNaoInformar = new JRadioButton("N\u00E3o Informar");
-		buttonGroup.add(rbNaoInformar);
+		bgSexo.add(rbNaoInformar);
 		rbNaoInformar.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		rbNaoInformar.setBounds(18, 97, 109, 31);
+		rbNaoInformar.setBounds(18, 97, 168, 31);
 		painelSexo.add(rbNaoInformar);
 
 		lblCurso = new JLabel("Curso");
@@ -377,17 +388,18 @@ public class AlunoWindow extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
+		
 		EventQueue.invokeLater(new Runnable() {
+		
 			public void run() {
+			
 				try {
+				
 					AlunoWindow frame = new AlunoWindow();
 					frame.setVisible(true);
+				
 				} catch (Exception e) {
+				
 					e.printStackTrace();
 				}
 			}

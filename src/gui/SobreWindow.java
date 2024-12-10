@@ -22,10 +22,13 @@ public class SobreWindow extends JFrame {
 	private JLabel lblDesenvolvedor;
 	private JLabel lblUniversidade;
 	private JButton btnOk;
+	
 	private AlunoWindow alunoWindow;
 
 	public SobreWindow(AlunoWindow alunoWindow) {
+		
 		addWindowListener(new WindowAdapter() {
+			
 			@Override
 			public void windowClosed(WindowEvent e) {
 
@@ -80,13 +83,13 @@ public class SobreWindow extends JFrame {
 			}
 		});
 		btnOk.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		btnOk.setBounds(118, 352, 203, 41);
+		btnOk.setBounds(124, 352, 203, 41);
 		contentPane.add(btnOk);
 		
 		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setIcon(new ImageIcon(".\\src\\gui\\image\\utfpr.png"));
+		lblNewLabel.setIcon(new ImageIcon("./src/gui/image/utfpr.png"));  // se estiver utilizando Windows OS, substitua a "/" por "\\".
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(79, 208, 283, 83);
+		lblNewLabel.setBounds(85, 208, 283, 83);
 		contentPane.add(lblNewLabel);
 		
 		setLocationRelativeTo(null);
